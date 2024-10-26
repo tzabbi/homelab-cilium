@@ -12,3 +12,13 @@ jobs:
         uses: arduino/setup-task@v2
       - name: generate file
         run: task generate-cilium-manifest
+      - name: Commit files # transfer the new html files back into the repository
+        run: |
+          git config --local user.name "Tom Zaspel"
+          git add ./cilium.yaml
+          git commit -m "Update cilium.yaml"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
