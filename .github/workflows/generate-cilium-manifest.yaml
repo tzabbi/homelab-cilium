@@ -1,0 +1,14 @@
+name: generate-cilium-manifest
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Task
+        uses: arduino/setup-task@v2
+      - name: generate file
+        run: task generate-cilium-manifest
