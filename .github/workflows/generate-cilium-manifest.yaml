@@ -19,6 +19,7 @@ jobs:
       - name: Commit files # transfer the new html files back into the repository
         run: |
           git config --local user.name "Tom Zaspel"
+          git config --local user.email "tom@zaspel.it"
           git add ./cilium.yaml
           git commit -m "Update cilium.yaml"
       - name: Push changes
