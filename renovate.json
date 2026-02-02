@@ -1,6 +1,25 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:base"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["(?i)taskfile\\.ya?ml$"],
+      "matchStrings": [
+        "CILIUM_VERSION: \"?(?<currentValue>[^\"\\s]+)\"?"
+      ],
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://helm.cilium.io/",
+      "depNameTemplate": "cilium"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["cilium"],
+      "matchDatasources": ["helm"],
+      "versioning": "semver"
+    }
   ]
 }
