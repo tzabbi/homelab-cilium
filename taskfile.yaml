@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  CILIUM_VERSION: 1.18.6
+  CILIUM_VERSION: 1.19.0
 
 tasks:
   generate-cilium-manifest:
