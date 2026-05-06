@@ -1,7 +1,8 @@
 version: '3'
 
 vars:
-  CILIUM_VERSION: 1.18.9
+  CILIUM_VERSION: 1.19.3
+  INSTALLED_VERSION: 1.18
 tasks:
   generate-cilium-manifest:
     cmds:
@@ -25,8 +26,7 @@ tasks:
         --set k8sClientRateLimit.burst=100 \
         --set k8sServiceHost=localhost \
         --set k8sServicePort=7445 \
-        --set updateStrategy.rollingUpdate.maxUnavailable=1 \
-        --set envoy.updateStrategy.rollingUpdate.maxUnavailable=1 > ./cilium.yaml
+        --set upgradeCompatibility={{ .INSTALLED_VERSION }} > ./cilium.yaml
 
   # Run this BEFORE applying a new cilium.yaml to pre-pull images and validate CNPs.
   # Usage: task preflight-check CILIUM_VERSION=1.19.9
