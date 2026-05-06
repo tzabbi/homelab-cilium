@@ -2,10 +2,6 @@ version: '3'
 
 vars:
   CILIUM_VERSION: 1.19.3
-  # Set this to the CURRENT running Cilium minor version before upgrading.
-  # e.g. when upgrading from 1.19.x to 1.19.y, set UPGRADE_COMPAT to 1.19
-  # e.g. when upgrading from 1.18.x to 1.19.y, set UPGRADE_COMPAT to 1.18
-  UPGRADE_COMPAT: "1.19"
 
 tasks:
   generate-cilium-manifest:
@@ -30,7 +26,8 @@ tasks:
         --set k8sClientRateLimit.burst=100 \
         --set k8sServiceHost=localhost \
         --set k8sServicePort=7445 \
-        --set upgradeCompatibility={{ .UPGRADE_COMPAT }} > ./cilium.yaml
+        --set updateStrategy.rollingUpdate.maxUnavailable=1 \
+        --set envoy.updateStrategy.rollingUpdate.maxUnavailable=1 > ./cilium.yaml
 
   # Run this BEFORE applying a new cilium.yaml to pre-pull images and validate CNPs.
   # Usage: task preflight-check CILIUM_VERSION=1.19.9
