@@ -1,8 +1,8 @@
 version: '3'
 
 vars:
-  CILIUM_VERSION: 1.18.9
-  INSTALLED_VERSION: 1.18
+  CILIUM_VERSION: 1.19.3
+  UPGRADE_COMPAT: 1.18
 tasks:
   generate-cilium-manifest:
     cmds:
@@ -14,6 +14,7 @@ tasks:
         cilium/cilium \
         --version {{ .CILIUM_VERSION }} \
         --namespace kube-system \
+        --set upgradeCompatibility={{ .UPGRADE_COMPAT }} \
         --set ipam.mode=kubernetes \
         --set kubeProxyReplacement=true \
         --set securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
@@ -25,33 +26,4 @@ tasks:
         --set k8sClientRateLimit.qps=50 \
         --set k8sClientRateLimit.burst=100 \
         --set k8sServiceHost=localhost \
-        --set k8sServicePort=7445 \
-        --set upgradeCompatibility={{ .INSTALLED_VERSION }} > ./cilium.yaml
-
-  # Run this BEFORE applying a new cilium.yaml to pre-pull images and validate CNPs.
-  # Usage: task preflight-check CILIUM_VERSION=1.19.9
-  preflight-check:
-    cmds:
-      - |
-        helm repo add cilium https://helm.cilium.io/
-        helm repo update
-        helm template \
-        cilium \
-        cilium/cilium \
-        --version {{ .CILIUM_VERSION }} \
-        --namespace kube-system \
-        --set preflight.enabled=true \
-        --set agent=false \
-        --set operator.enabled=false \
-        --set k8sServiceHost=localhost \
-        --set k8sServicePort=7445 > /tmp/cilium-preflight.yaml
-        kubectl apply -f /tmp/cilium-preflight.yaml
-        echo "Waiting for preflight DaemonSet to be ready..."
-        kubectl rollout status daemonset/cilium-pre-flight-check -n kube-system --timeout=300s
-        echo "Checking preflight Deployment (CNP validation)..."
-        kubectl wait deployment/cilium-pre-flight-check -n kube-system --for=condition=Available --timeout=120s
-
-  # Cleanup after preflight-check
-  preflight-cleanup:
-    cmds:
-      - kubectl delete -f /tmp/cilium-preflight.yaml --ignore-not-found
+        --set k8sServicePort=7445 > ./cilium.yaml

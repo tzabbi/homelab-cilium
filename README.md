@@ -14,8 +14,9 @@ task generate-cilium-manifest
 ```
 
 This runs `helm template` and writes the result to `cilium.yaml`.
-The variable `UPGRADE_COMPAT` in `taskfile.yaml` must always match the **currently running** Cilium minor version
-(e.g. `1.19` when you are on any `1.19.x` release).
+The variable `UPGRADE_COMPAT` in `taskfile.yaml` must match the **currently running** Cilium minor version
+before a minor upgrade (e.g. `1.18` when upgrading from any `1.18.x` release to `1.19.x`).
+For patch upgrades within the same minor, it should stay on that minor.
 
 ## Upgrading Cilium (kube-proxy replacement — safe procedure)
 
@@ -38,6 +39,9 @@ This ensures only **one node at a time** goes through the Cilium restart.
 ### Upgrade procedure
 
 ### Step 1 — Update `CILIUM_VERSION` in `taskfile.yaml`
+
+If you are doing a **minor** upgrade, also verify `UPGRADE_COMPAT` is set to the currently running minor.
+Example: upgrading from `1.18.6` to `1.19.10` means `CILIUM_VERSION=1.19.10` and `UPGRADE_COMPAT=1.18`.
 
 ### Step 2 — Re-generate the manifest
 
@@ -71,8 +75,8 @@ kubectl rollout status daemonset/cilium -n kube-system --timeout=600s
 | Both nodes lose BPF service routing at once          | Remaining nodes keep routing traffic        |
 | With kube-proxy replacement: **cluster unreachable** | Brief per-node disruption, cluster stays up |
 
-> **Note:** `upgradeCompatibility` (a Helm flag sometimes mentioned in docs) has **zero effect**
-> when using `helm template` + `kubectl apply`. It only works with `helm upgrade`.
+> **Note:** this repo renders manifests with `helm template`, so preserving upgrade-related Helm values
+> such as `upgradeCompatibility` in `taskfile.yaml` is important when moving across Cilium minor versions.
 
 ## Renovate
 
